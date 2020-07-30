@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+from ..items import QuotesbotItem
 
 
 class ToScrapeCSSSpider(scrapy.Spider):
@@ -9,12 +10,13 @@ class ToScrapeCSSSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
+        items = QuotesbotItem()
+
         for quote in response.css("div.quote"):
-            yield {
-                'text': quote.css("span.text::text").extract_first(),
-                'author': quote.css("small.author::text").extract_first(),
-                'tags': quote.css("div.tags > a.tag::text").extract()
-            }
+            items['text'] = quote.css("span.text::text").extract_first()
+            items['author'] = quote.css("small.author::text").extract_first()
+            items['tags'] = quote.css("div.tags > a.tag::text").extract()
+            yield items
 
         next_page_url = response.css("li.next > a::attr(href)").extract_first()
         if next_page_url is not None:
